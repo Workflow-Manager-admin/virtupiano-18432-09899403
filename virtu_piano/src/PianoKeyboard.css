@@ -34,29 +34,78 @@
   border-color: #FFD700;
 }
 
+/* 
+  Black key: - centered, narrower, shorter, higher z-index, overlapping white keys.
+  Use CSS variable for tuneable width for black key and allow the JS to compute with it.
+*/
+:root {
+  --black-key-width: 38px;
+  --black-key-height: 95px;
+}
 .piano-key.black {
   background: #000000;
   border: 2px solid #333;
   border-radius: 0 0 6px 6px;
+  /* Center the key using left/translateX or via calc() tuned in JS */
   position: absolute;
   top: 0;
-  width: 38px;
-  height: 95px;
-  z-index: 5; /* ensure above white keys */
+  width: var(--black-key-width);
+  height: var(--black-key-height);
+  z-index: 10; /* ensure above white keys and clear from white key shadow */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.28);
+  box-shadow: 0 4px 21px rgba(0,0,0,0.27), 0 1px 5px #1118;
   transition: background 0.12s, box-shadow 0.12s;
   /* Remove margin-left for left absolute via piano logic */
+  /* 
+    The left property is dynamically set in JS, centering each black key between its corresponding white pair.
+    We subtract half black-key width in JS for pixel perfect center.
+  */
+  /* pointer-events handled well by default */
 }
 
 .piano-key.black.active {
   background: #FFD700;
   border-color: #FFD700;
-  box-shadow: 0 4px 24px #FFD70099;
+  box-shadow: 0 4px 28px #FFD700bb;
+}
+
+/* 
+  Responsiveness: on small screens, scale everything 
+*/
+@media (max-width: 700px) {
+  .piano-keyboard-container { max-width: 100vw; }
+  .piano-white-keys { height: 88px; }
+  .piano-key.white { font-size: 13px;}
+  :root {
+    --black-key-width: 22px;
+    --black-key-height: 54px;
+  }
+}
+
+/* Ensure black keys are visually above white, but labels are readable */
+.piano-key .note-label {
+  font-size: 1.03rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #1a1a1a;
+}
+
+.piano-key.black .note-label {
+  color: #fff;
+}
+
+.piano-key .key-label {
+  font-size: 0.78rem;
+  background: #FFD70011;
+  color: #FFD700;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-weight: 600;
+  margin-bottom: 9px;
 }
 
 .piano-key .note-label {
