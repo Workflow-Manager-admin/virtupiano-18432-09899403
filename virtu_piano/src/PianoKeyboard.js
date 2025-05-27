@@ -201,24 +201,35 @@ const PianoKeyboard = ({
     .map((key, idx) => ({ ...key, idx }))
     .filter((keyObj) => keyObj.type === "white");
 
-  // Map for correct black key absolute positioning above white keys
-  // White key ordering: C D E F G A B (indices in KEYBOARD_NOTE_MAP are 0,2,4,5,7,9,11)
-  // Black keys must be absolutely positioned BETWEEN certain white keys
-  // There are no black keys between E-F and B-C, matching piano
-  const blackKeyPositions = [
-    // left as % per white key index
-    { note: "C#4", between: [0,1], percent: ((1) / 7) * 100 - 100/14 }, // between C(0) and D(1)
-    { note: "D#4", between: [1,2], percent: ((2) / 7) * 100 - 100/14 }, // between D(1) and E(2)
-    // No black between E(2)-F(3)
-    { note: "F#4", between: [3,4], percent: ((4) / 7) * 100 - 100/14 },
-    { note: "G#4", between: [4,5], percent: ((5) / 7) * 100 - 100/14 },
-    { note: "A#4", between: [5,6], percent: ((6) / 7) * 100 - 100/14 },
-    // No black between B(6)-C(7)
-  ];
+  // Association of black keys to the left index of their adjacent white key in the octave [C D E F G A B]
+  // This reflects: BlackKey: adjacent left index in whiteKeys
+  const blackKeyToWhiteLeftIdx = {
+    "C#4": 0, // between C (0) and D (1)
+    "D#4": 1, // between D (1) and E (2)
+    // no black between E(2)-F(3)
+    "F#4": 3, // between F (3) and G (4)
+    "G#4": 4, // between G (4) and A (5)
+    "A#4": 5, // between A (5) and B (6)
+    // no black between B(6)-C(7)
+  };
+
+  // Returns the left offset (%) for each black key, so it sits between the adjacent two white keys
+  function getBlackKeyOffset(note) {
+    // White keys × 7 per octave (C D E F G A B), 0-based.
+    const keyWidthPercent = 100 / whiteKeys.length;
+    if (!(note in blackKeyToWhiteLeftIdx)) return null;
+    const leftWhiteIdx = blackKeyToWhiteLeftIdx[note];
+    // Center black key between leftWhiteIdx and leftWhiteIdx + 1, minus half the black key width (handled by CSS, but tune here for accuracy)
+    // Start left at (leftWhiteIdx + 1) * keyWidth - half black-key width in percent
+    // We want the black key to be centered between two white keys
+    const halfWhite = keyWidthPercent / 2;
+    return (leftWhiteIdx + 1) * keyWidthPercent - halfWhite;
+  }
 
   return (
     <div className="piano-keyboard-container">
       <div className="piano-white-keys">
+        {/* White keys are rendered first in DOM */}
         {whiteKeys.map((k, i) => (
           <div
             tabIndex={0}
@@ -238,13 +249,13 @@ const PianoKeyboard = ({
             <div className="key-label">{k.key}</div>
           </div>
         ))}
-        {/* Black keys with correct piano arrangement and positions */}
+        {/* Black keys are absolutely positioned between white keys */}
         {KEYBOARD_NOTE_MAP
           .map((key, idx) => ({ ...key, idx }))
           .filter(k => k.type === "black")
           .map((k) => {
-            const posObj = blackKeyPositions.find(bk => bk.note === k.note);
-            if(!posObj) return null;
+            const offsetPercent = getBlackKeyOffset(k.note);
+            if (offsetPercent === null) return null;
             return (
               <div
                 tabIndex={0}
@@ -254,7 +265,7 @@ const PianoKeyboard = ({
                   (activeKeys.has(k.idx) ? " active" : "")
                 }
                 style={{
-                  left: `calc(${posObj.percent}% - 1vw)`,
+                  left: `calc(${offsetPercent}% - var(--black-key-width)/2)`,
                 }}
                 onMouseDown={e => { e.stopPropagation(); handlePointerDown(k.idx); }}
                 onMouseUp={e => { e.stopPropagation(); handlePointerUp(k.idx); }}
