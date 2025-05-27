@@ -1,0 +1,88 @@
+.piano-keyboard-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto 32px auto;
+  user-select: none;
+}
+.piano-white-keys {
+  display: flex;
+  position: relative;
+  height: 170px;
+  background: transparent;
+}
+.piano-key.white {
+  background: #FFFFFF;
+  border: 1.5px solid #CCCCCC;
+  border-radius: 0 0 8px 8px;
+  width: calc(100% / 7); /* 7 white keys */
+  height: 100%;
+  margin: 0 -1.5px; /* for border overlap */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  cursor: pointer;
+  z-index: 1;
+  transition: background 0.12s, box-shadow 0.12s;
+}
+
+.piano-key.white.active {
+  background: #FFD700;
+  box-shadow: 0 4px 16px #FFD70055;
+  border-color: #FFD700;
+}
+
+.piano-key.black {
+  background: #000000;
+  border: 2px solid #333;
+  border-radius: 0 0 6px 6px;
+  position: absolute;
+  top: 0;
+  width: 38px;
+  height: 95px;
+  z-index: 2;
+  margin-left: -19px; /* Center black over gap */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.28);
+  transition: background 0.12s, box-shadow 0.12s;
+}
+
+.piano-key.black.active {
+  background: #FFD700;
+  border-color: #FFD700;
+  box-shadow: 0 4px 24px #FFD70099;
+}
+
+.piano-key .note-label {
+  font-size: 1.03rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #1a1a1a;
+}
+
+.piano-key.black .note-label {
+  color: #fff;
+}
+
+.piano-key .key-label {
+  font-size: 0.78rem;
+  background: #FFD70011;
+  color: #FFD700;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-weight: 600;
+  margin-bottom: 9px;
+}
+
+@media (max-width: 700px) {
+  .piano-keyboard-container { max-width: 100vw; }
+  .piano-white-keys { height: 88px; }
+  .piano-key.white { font-size: 13px; }
+  .piano-key.black { width: 22px; height: 54px; margin-left: -11px; }
+}
